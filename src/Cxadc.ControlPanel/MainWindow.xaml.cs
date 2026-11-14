@@ -17,13 +17,22 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-
         SetLocalizedTitle(LanguageSettings.Get("AppTitle"));
-
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
 
-        AppWindow.SetIcon("Assets/CXADC-Control-Panel.ico");
+        // Resolve the optional icon relative to the installed app, not the
+        // process working directory. A missing icon must not stop startup.
+        try
+        {
+            var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "CXADC-Control-Panel.ico");
+            if (File.Exists(iconPath))
+                AppWindow.SetIcon(iconPath);
+        }
+        catch
+        {
+            // Keep the panel available if Windows cannot set its window icon.
+        }
 
         // Navigate the root frame to the main page on startup.
         RootFrame.Navigate(typeof(MainPage));
