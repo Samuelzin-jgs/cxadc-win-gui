@@ -40,7 +40,7 @@
                                         <ComboBoxItem Content="3" Tag="3" />
                                     </ComboBox>
                                     <NumberBox x:Name="LevelNumberBox" Header="Level (0–31)" Minimum="0" Maximum="31" SpinButtonPlacementMode="Inline" Value="16" />
-                                    <NumberBox x:Name="CenterOffsetNumberBox" Header="Center Offset (0–63)" Minimum="0" Maximum="63" SpinButtonPlacementMode="Inline" Value="0" />
+                                    <NumberBox x:Name="CenterOffsetNumberBox" Header="Center Offset (0–255)" Minimum="0" Maximum="255" SpinButtonPlacementMode="Inline" Value="0" />
                                     <CheckBox x:Name="TenBitCheckBox" Content="10-bit capture" />
                                     <CheckBox x:Name="SixDbCheckBox" Content="+6 dB gain" />
                                     <StackPanel Orientation="Horizontal" Spacing="8">

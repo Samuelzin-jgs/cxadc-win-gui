@@ -79,8 +79,8 @@ public sealed class CxadcWmiService
             throw new ArgumentOutOfRangeException(nameof(configuration), "Video Mux must be 0–3.");
         if (configuration.Level is < 0 or > 31)
             throw new ArgumentOutOfRangeException(nameof(configuration), "Level must be 0–31.");
-        if (configuration.CenterOffset is < 0 or > 63)
-            throw new ArgumentOutOfRangeException(nameof(configuration), "Center Offset must be 0–63.");
+        if (configuration.CenterOffset is < 0 or > 255)
+            throw new ArgumentOutOfRangeException(nameof(configuration), "Center Offset must be 0–255.");
 
         using var item = FindInstance("CxadcWin_Config", device.InstanceName);
         item["VideoMux"] = configuration.VideoMux;

@@ -18,6 +18,8 @@ Download the latest package from the [releases page](https://github.com/Samuelzi
 
 The installer may need administrator privileges. If Windows rejects the unsigned driver, the panel and other tools can still be installed; follow the driver-specific instructions for your system rather than changing security settings blindly.
 
+The driver step reports what actually happened: whether the driver package reached the Windows driver store and whether a CXADC card is present and started. Select **Clean driver install** in the installer's task list to remove existing `cxadc-win` driver packages before reinstalling; that option is off by default and only touches packages whose original INF is `cxadc-win.inf`.
+
 ### CXADC Control Panel
 
 The panel provides three areas:
@@ -112,6 +114,8 @@ Este projeto é uma versão para Windows do [driver cxadc para Linux](https://gi
 Baixe o pacote mais recente na [página de releases](https://github.com/Samuelzin-jgs/cxadc-win-gui/releases). Quando o instalador `CXADC-Tools-Setup.exe` estiver disponível, ele instala o painel e os utilitários e, em seguida, solicita ao Windows a instalação do driver. Também é possível baixar separadamente o driver e as ferramentas no arquivo da release.
 
 O instalador pode exigir privilégios de administrador. Se o Windows rejeitar o driver sem assinatura, o painel e as outras ferramentas ainda poderão ser instalados. Siga as instruções específicas do driver para o seu sistema; não altere as configurações de segurança sem entender as consequências.
+
+A etapa do driver informa o que realmente aconteceu: se o pacote chegou ao repositório de drivers do Windows e se há uma placa CXADC presente e iniciada. Marque **Instalação limpa do driver** na lista de tarefas do instalador para remover os pacotes `cxadc-win` existentes antes de reinstalar; a opção vem desmarcada e só afeta pacotes cujo INF original é `cxadc-win.inf`.
 
 ### CXADC Control Panel
 

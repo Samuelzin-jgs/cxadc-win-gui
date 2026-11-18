@@ -1,0 +1,135 @@
+name: Build test
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_configuration:
+        description: Build configuration
+        required: true
+        default: Release
+        type: choice
+        options:
+          - Debug
+          - Release
+
+      sign_binaries:
+        description: Sign binaries
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    name: Build test (${{ inputs.build_configuration }})
+    runs-on: windows-2022
+    permissions:
+      contents: read
+    env:
+      SOLUTION_FILE: .\cxadc-win.sln
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Import code signing certificate
+        id: import_cert
+        uses: ./.github/actions/sign_import_certificate
+        if: ${{ inputs.sign_binaries }}
+        with:
+          code_signing_cert: ${{ secrets.CODE_SIGNING_CERT }}
+          code_signing_cert_pass: ${{ secrets.CODE_SIGNING_CERT_PASS }}
+
+      - name: Build driver
+        uses: ./.github/actions/build_driver
+        with:
+          solution: ${{ env.SOLUTION_FILE }}
+          configuration: ${{ inputs.build_configuration }}
+          platform: x64
+          code_signing_cert_hash: ${{ inputs.sign_binaries && steps.import_cert.outputs.code_signing_cert_hash || '' }}
+
+      - name: Build capture-server
+        uses: ./.github/actions/build_capture_server
+        with:
+          solution: ${{ env.SOLUTION_FILE }}
+          configuration: ${{ inputs.build_configuration }}
+          platform: x64
+          code_signing_cert_hash: ${{ inputs.sign_binaries && steps.import_cert.outputs.code_signing_cert_hash || '' }}
+
+      - name: Build leveladj
+        uses: ./.github/actions/build_leveladj
+        with:
+          solution: ${{ env.SOLUTION_FILE }}
+          configuration: ${{ inputs.build_configuration }}
+          platform: x64
+          code_signing_cert_hash: ${{ inputs.sign_binaries && steps.import_cert.outputs.code_signing_cert_hash || '' }}
+
+      - name: Build clockgen firmware
+        uses: ./.github/actions/build_clockgen_firmware
+        with:
+          configuration: ${{ inputs.build_configuration }}
+          platform: x64
+          code_signing_cert_hash: ${{ inputs.sign_binaries && steps.import_cert.outputs.code_signing_cert_hash || '' }}
+
+      - name: Build CXADC Control Panel
+        uses: ./.github/actions/build_control_panel
+        with:
+          configuration: ${{ inputs.build_configuration }}
+          platform: x64
+
+      - name: Download driver artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: .\release\driver
+          pattern: ${{ inputs.build_configuration }}-x64-driver
+          merge-multiple: true
+
+      - name: Download bin artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: .\release\bin
+          pattern: ${{ inputs.build_configuration }}-x64-bin-*
+          merge-multiple: true
+
+      - name: Download clockgen firmware artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: .\release\clockgen_firmware
+          pattern: ${{ inputs.build_configuration }}-clockgen_firmware
+          merge-multiple: true
+
+      - name: Download CXADC Control Panel artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: .\release\app
+          pattern: ${{ inputs.build_configuration }}-x64-control-panel
+          merge-multiple: true
+
+      - name: Stage license
+        shell: pwsh
+        run: |
+          New-Item -Path .\release\license -ItemType Directory -Force | Out-Null
+          Copy-Item -Path .\LICENSE -Destination .\release\license\LICENSE-GPL-2.0
+
+      - name: Compile CXADC Tools installer
+        shell: pwsh
+        run: |
+          choco install innosetup --yes --no-progress
+          $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
+          & $iscc .\installer\CXADC-Tools.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.build_configuration }}-x64-installer
+          if-no-files-found: error
+          path: .\release\CXADC-Tools-Setup.exe
+
+      - name: Upload release folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.build_configuration }}-x64-release-folder
+          if-no-files-found: error
+          path: .\release\*
