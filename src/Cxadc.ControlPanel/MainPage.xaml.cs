@@ -25,8 +25,11 @@ public sealed partial class MainPage : Page
 
     private async void MainPage_Loaded(object sender, RoutedEventArgs e)
     {
+        if (!LanguageSettings.HasSavedLanguage)
+            await AskLanguageAsync();
         _ready = true;
         UpdateLocalizedText();
+        RefreshPresetList();
         _statusTimer.Start();
         await RefreshAllAsync();
     }
@@ -90,6 +93,156 @@ public sealed partial class MainPage : Page
         IrFunctionCheckBox.Content = LanguageSettings.Get("Infrared");
         LoadFunctionsButton.Content = LanguageSettings.Get("ReadEeprom");
         ApplyFunctionsButton.Content = LanguageSettings.Get("WriteEeprom");
+        PresetComboBox.Header = LanguageSettings.Get("PresetsHeader");
+        PresetComboBox.PlaceholderText = LanguageSettings.Get("NoPresets");
+        LoadPresetButton.Content = LanguageSettings.Get("LoadPreset");
+        SavePresetButton.Content = LanguageSettings.Get("SavePreset");
+        DeletePresetButton.Content = LanguageSettings.Get("DeletePreset");
+    }
+
+    private async Task AskLanguageAsync()
+    {
+        var list = new ListView
+        {
+            SelectionMode = ListViewSelectionMode.Single,
+            SelectedIndex = LanguageSettings.CurrentLanguage == "pt-BR" ? 0 : 1,
+            Items = { new ListViewItem { Content = "Português (Brasil)", Tag = "pt-BR" }, new ListViewItem { Content = "English", Tag = "en-US" } }
+        };
+        var dialog = new ContentDialog
+        {
+            Title = LanguageSettings.Get("ChooseLanguageTitle"),
+            Content = new StackPanel { Spacing = 8, Children = { new TextBlock { Text = LanguageSettings.Get("ChooseLanguageBody") }, list } },
+            PrimaryButtonText = "OK",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = XamlRoot
+        };
+        await dialog.ShowAsync();
+        var language = (list.SelectedItem as ListViewItem)?.Tag as string ?? LanguageSettings.CurrentLanguage;
+        try
+        {
+            LanguageSettings.SetLanguage(language);
+        }
+        catch (Exception ex)
+        {
+            CardStatusText.Text = Format("OperationFailed", ex.Message);
+        }
+    }
+
+    private void RefreshPresetList(string? select = null)
+    {
+        var presets = SettingsStore.Load().Presets;
+        PresetComboBox.ItemsSource = presets;
+        PresetComboBox.SelectedItem = presets.FirstOrDefault(p => string.Equals(p.Name, select, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private void LoadPresetButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (PresetComboBox.SelectedItem is not CardPreset preset)
+        {
+            CardStatusText.Text = LanguageSettings.Get("ChoosePreset");
+            return;
+        }
+        VideoMuxComboBox.SelectedIndex = preset.VideoMux is >= 0 and <= 3 ? preset.VideoMux : -1;
+        LevelNumberBox.Value = Math.Clamp(preset.Level, 0, 31);
+        CenterOffsetNumberBox.Value = Math.Clamp(preset.CenterOffset, 0, 63);
+        TenBitCheckBox.IsChecked = preset.TenBit;
+        SixDbCheckBox.IsChecked = preset.SixDb;
+        if (preset.Clock0 is not null && Clock0ComboBox.Items.Contains(preset.Clock0))
+            Clock0ComboBox.SelectedItem = preset.Clock0;
+        if (preset.Clock1 is not null && Clock1ComboBox.Items.Contains(preset.Clock1))
+            Clock1ComboBox.SelectedItem = preset.Clock1;
+        if (preset.AdcRate is not null && AdcRateComboBox.Items.Contains(preset.AdcRate))
+            AdcRateComboBox.SelectedItem = preset.AdcRate;
+        CardStatusText.Text = Format("PresetLoaded", preset.Name);
+    }
+
+    private async void SavePresetButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!double.IsFinite(LevelNumberBox.Value) || !double.IsFinite(CenterOffsetNumberBox.Value)
+            || VideoMuxComboBox.SelectedItem is not ComboBoxItem selectedMux)
+        {
+            CardStatusText.Text = LanguageSettings.Get("OperationFailed").Replace("{0}", "Invalid setting value");
+            return;
+        }
+        var nameBox = new TextBox
+        {
+            Header = LanguageSettings.Get("PresetNameHeader"),
+            Text = (PresetComboBox.SelectedItem as CardPreset)?.Name ?? "",
+            MaxLength = 60
+        };
+        var dialog = new ContentDialog
+        {
+            Title = LanguageSettings.Get("SavePreset"),
+            Content = nameBox,
+            PrimaryButtonText = LanguageSettings.Get("Save"),
+            CloseButtonText = LanguageSettings.Get("Cancel"),
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = XamlRoot
+        };
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+            return;
+        var name = nameBox.Text.Trim();
+        if (name.Length == 0)
+            return;
+        if (SettingsStore.Load().Presets.Any(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase))
+            && !await ConfirmTextAsync(LanguageSettings.Get("SavePreset"), Format("OverwritePresetBody", name)))
+            return;
+        try
+        {
+            SettingsStore.SavePreset(new CardPreset
+            {
+                Name = name,
+                VideoMux = int.Parse((string)selectedMux.Tag, CultureInfo.InvariantCulture),
+                Level = (int)Math.Round(LevelNumberBox.Value),
+                CenterOffset = (int)Math.Round(CenterOffsetNumberBox.Value),
+                TenBit = TenBitCheckBox.IsChecked == true,
+                SixDb = SixDbCheckBox.IsChecked == true,
+                Clock0 = Clock0ComboBox.SelectedItem as string,
+                Clock1 = Clock1ComboBox.SelectedItem as string,
+                AdcRate = AdcRateComboBox.SelectedItem as string
+            });
+            RefreshPresetList(name);
+            CardStatusText.Text = Format("PresetSaved", name);
+        }
+        catch (Exception ex)
+        {
+            CardStatusText.Text = Format("OperationFailed", ex.Message);
+        }
+    }
+
+    private async void DeletePresetButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (PresetComboBox.SelectedItem is not CardPreset preset)
+        {
+            CardStatusText.Text = LanguageSettings.Get("ChoosePreset");
+            return;
+        }
+        if (!await ConfirmTextAsync(LanguageSettings.Get("DeletePreset"), preset.Name))
+            return;
+        try
+        {
+            SettingsStore.DeletePreset(preset.Name);
+            RefreshPresetList();
+            CardStatusText.Text = Format("PresetDeleted", preset.Name);
+        }
+        catch (Exception ex)
+        {
+            CardStatusText.Text = Format("OperationFailed", ex.Message);
+        }
+    }
+
+    private async Task<bool> ConfirmTextAsync(string title, string body)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = body,
+            PrimaryButtonText = LanguageSettings.Get("Yes"),
+            CloseButtonText = LanguageSettings.Get("No"),
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = XamlRoot
+        };
+        return await dialog.ShowAsync() == ContentDialogResult.Primary;
     }
 
     private async Task RefreshAllAsync()
