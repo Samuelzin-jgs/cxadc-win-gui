@@ -43,6 +43,16 @@ public partial class App : Application
     /// </summary>
     public App()
     {
+        AppLog.Initialize();
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+            AppLog.Error("Unhandled domain exception", e.ExceptionObject as Exception);
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            AppLog.Error("Unobserved task exception", e.Exception);
+            e.SetObserved();
+        };
+        UnhandledException += (_, e) =>
+            AppLog.Error("Unhandled XAML exception", e.Exception);
         LanguageSettings.Initialize();
         InitializeComponent();
     }
@@ -53,8 +63,10 @@ public partial class App : Application
     /// <param name="args">Details about the launch request and process.</param>
     protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
+        AppLog.Info("Creating main window");
         Window = new MainWindow();
         DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
         Window.Activate();
+        AppLog.Info("Main window activated");
     }
 }

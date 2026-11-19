@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using Cxadc_ControlPanel.Models;
 using Cxadc_ControlPanel.Services;
@@ -25,6 +26,7 @@ public sealed partial class MainPage : Page
 
     private async void MainPage_Loaded(object sender, RoutedEventArgs e)
     {
+        AppLog.Info("Main page loaded");
         if (!LanguageSettings.HasSavedLanguage)
             await AskLanguageAsync();
         _ready = true;
@@ -32,6 +34,7 @@ public sealed partial class MainPage : Page
         RefreshPresetList();
         _statusTimer.Start();
         await RefreshAllAsync();
+        AppLog.Info($"Panel ready, language {LanguageSettings.CurrentLanguage}");
     }
 
     private void UpdateLocalizedText()
@@ -98,6 +101,7 @@ public sealed partial class MainPage : Page
         LoadPresetButton.Content = LanguageSettings.Get("LoadPreset");
         SavePresetButton.Content = LanguageSettings.Get("SavePreset");
         DeletePresetButton.Content = LanguageSettings.Get("DeletePreset");
+        OpenLogsButton.Content = LanguageSettings.Get("OpenLogsFolder");
     }
 
     private async Task AskLanguageAsync()
@@ -121,9 +125,11 @@ public sealed partial class MainPage : Page
         try
         {
             LanguageSettings.SetLanguage(language);
+            AppLog.Info($"First-run language selected: {language}");
         }
         catch (Exception ex)
         {
+            AppLog.Error("Could not save the selected language", ex);
             CardStatusText.Text = Format("OperationFailed", ex.Message);
         }
     }
@@ -153,6 +159,7 @@ public sealed partial class MainPage : Page
             Clock1ComboBox.SelectedItem = preset.Clock1;
         if (preset.AdcRate is not null && AdcRateComboBox.Items.Contains(preset.AdcRate))
             AdcRateComboBox.SelectedItem = preset.AdcRate;
+        AppLog.Info($"Preset loaded into the fields: {preset.Name}");
         CardStatusText.Text = Format("PresetLoaded", preset.Name);
     }
 
@@ -202,10 +209,12 @@ public sealed partial class MainPage : Page
                 AdcRate = AdcRateComboBox.SelectedItem as string
             });
             RefreshPresetList(name);
+            AppLog.Info($"Preset saved: {name}");
             CardStatusText.Text = Format("PresetSaved", name);
         }
         catch (Exception ex)
         {
+            AppLog.Error($"Could not save preset {name}", ex);
             CardStatusText.Text = Format("OperationFailed", ex.Message);
         }
     }
@@ -223,10 +232,12 @@ public sealed partial class MainPage : Page
         {
             SettingsStore.DeletePreset(preset.Name);
             RefreshPresetList();
+            AppLog.Info($"Preset deleted: {preset.Name}");
             CardStatusText.Text = Format("PresetDeleted", preset.Name);
         }
         catch (Exception ex)
         {
+            AppLog.Error($"Could not delete preset {preset.Name}", ex);
             CardStatusText.Text = Format("OperationFailed", ex.Message);
         }
     }
@@ -263,6 +274,7 @@ public sealed partial class MainPage : Page
             catch (Exception ex)
             {
                 clocks = Array.Empty<ClockGenInfo>();
+                AppLog.Error("Could not enumerate clockgen devices", ex);
                 ClockStatusText.Text = Format("OperationFailed", ex.Message);
             }
 
@@ -272,6 +284,11 @@ public sealed partial class MainPage : Page
             ClockGenComboBox.ItemsSource = new ObservableCollection<ClockGenInfo>(clocks);
             CardComboBox.SelectedItem = devices.FirstOrDefault(x => x.Path == previousCardPath) ?? devices.FirstOrDefault();
             ClockGenComboBox.SelectedItem = clocks.FirstOrDefault(x => x.DevicePath == previousClockPath) ?? clocks.FirstOrDefault();
+            AppLog.Info($"Device scan: {devices.Count} CXADC card(s), {clocks.Count} clockgen device(s)");
+            foreach (var found in devices)
+                AppLog.Info($"  card {found.Path} at {found.PciLocation}");
+            foreach (var found in clocks)
+                AppLog.Info($"  clockgen {found.DevicePath} serial {found.Serial} firmware 0x{found.FirmwareVersion:X4}");
             if (devices.Count == 0)
             {
                 CardStatusText.Text = LanguageSettings.Get("NoCxadc");
@@ -298,6 +315,7 @@ public sealed partial class MainPage : Page
         }
         catch (Exception ex)
         {
+            AppLog.Error("Device refresh failed", ex);
             CardStatusText.Text = Format("OperationFailed", ex.Message);
             ClockStatusText.Text = Format("OperationFailed", ex.Message);
         }
@@ -352,11 +370,14 @@ public sealed partial class MainPage : Page
                 TenBitCheckBox.IsChecked == true,
                 SixDbCheckBox.IsChecked == true);
             await Task.Run(() => _cxadc.SetConfiguration(device, config));
+            AppLog.Info($"Card settings applied to {device.Path}: vmux {config.VideoMux}, level {config.Level}, " +
+                        $"center offset {config.CenterOffset}, 10-bit {config.EnableTenbit}, +6 dB {config.EnableSixDB}");
             await LoadCardConfigurationAsync();
             CardStatusText.Text = LanguageSettings.Get("SavedCard");
         }
         catch (Exception ex)
         {
+            AppLog.Error($"Could not apply card settings to {device.Path}", ex);
             CardStatusText.Text = Format("OperationFailed", ex.Message);
         }
     }
@@ -409,10 +430,13 @@ public sealed partial class MainPage : Page
                 current = await Task.Run(() => _clockgen.SetRate(current, ClockOutput.Adc, adcRate));
             ShowClockgen(current);
             ClockGenComboBox.SelectedItem = current;
+            AppLog.Info($"Clockgen rates applied to {current.DevicePath}: clock0 {current.ClockRate0}, " +
+                        $"clock1 {current.ClockRate1}, adc {current.AdcRate}");
             ClockStatusText.Text = LanguageSettings.Get("ClockApplied");
         }
         catch (Exception ex)
         {
+            AppLog.Error("Could not apply clockgen rates", ex);
             ClockStatusText.Text = Format("OperationFailed", ex.Message);
         }
     }
@@ -425,10 +449,12 @@ public sealed partial class MainPage : Page
         {
             var value = await Task.Run(() => _cxadc.ReadRegister(device, address));
             RegisterValueBox.Text = value.ToString("X8", CultureInfo.InvariantCulture);
+            AppLog.Info($"Register 0x{address:X6} read from {device.Path}: 0x{value:X8}");
             RegisterStatusText.Text = Format("RegisterReadResult", address, value);
         }
         catch (Exception ex)
         {
+            AppLog.Error($"Could not read register 0x{address:X6}", ex);
             RegisterStatusText.Text = Format("OperationFailed", ex.Message);
         }
     }
@@ -444,10 +470,12 @@ public sealed partial class MainPage : Page
         try
         {
             await Task.Run(() => _cxadc.WriteRegister(device, address, value));
+            AppLog.Info($"Register 0x{address:X6} written on {device.Path}: 0x{value:X8}");
             RegisterStatusText.Text = Format("RegisterWritten", value, address);
         }
         catch (Exception ex)
         {
+            AppLog.Error($"Could not write register 0x{address:X6}", ex);
             RegisterStatusText.Text = Format("OperationFailed", ex.Message);
         }
     }
@@ -463,9 +491,12 @@ public sealed partial class MainPage : Page
             AudioFunctionCheckBox.IsChecked = functions.Audio;
             MpegFunctionCheckBox.IsChecked = functions.Mpeg;
             IrFunctionCheckBox.IsChecked = functions.Infrared;
+            AppLog.Info($"EEPROM functions read from {device.Path}: video {functions.Video}, audio {functions.Audio}, " +
+                        $"mpeg {functions.Mpeg}, ir {functions.Infrared}");
         }
         catch (Exception ex)
         {
+            AppLog.Error("Could not read EEPROM functions", ex);
             RegisterStatusText.Text = Format("OperationFailed", ex.Message);
         }
     }
@@ -484,6 +515,8 @@ public sealed partial class MainPage : Page
                 MpegFunctionCheckBox.IsChecked == true,
                 IrFunctionCheckBox.IsChecked == true);
             await Task.Run(() => _cxadc.SetFunctions(device, functions));
+            AppLog.Info($"EEPROM functions written on {device.Path}: video {functions.Video}, audio {functions.Audio}, " +
+                        $"mpeg {functions.Mpeg}, ir {functions.Infrared}");
             RegisterStatusText.Text = LanguageSettings.Get("FunctionUpdateSuccess");
         }
         catch (Exception ex)
@@ -499,10 +532,12 @@ public sealed partial class MainPage : Page
         try
         {
             LanguageSettings.SetLanguage(language);
+            AppLog.Info($"Language changed to {language}");
             UpdateLocalizedText();
         }
         catch (Exception ex)
         {
+            AppLog.Error("Could not change the language", ex);
             CardStatusText.Text = Format("OperationFailed", ex.Message);
         }
     }
@@ -611,6 +646,21 @@ public sealed partial class MainPage : Page
         value = 0;
         RegisterStatusText.Text = Format("OperationFailed", "Enter a valid hexadecimal number and select a card.");
         return false;
+    }
+
+    private void OpenLogsButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Directory.CreateDirectory(AppLog.DirectoryPath);
+            Process.Start(new ProcessStartInfo("explorer.exe", $"\"{AppLog.DirectoryPath}\"") { UseShellExecute = true });
+            AppLog.Info("Opened the logs folder");
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Could not open the logs folder", ex);
+            CardStatusText.Text = Format("OperationFailed", ex.Message);
+        }
     }
 
     private async Task<bool> ConfirmAsync(string titleKey, string bodyKey)

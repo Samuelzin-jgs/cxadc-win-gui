@@ -75,6 +75,7 @@
                                         <TextBlock x:Name="InitialPageValue" Grid.Row="5" Grid.Column="1" Text="—" />
                                     </Grid>
                                     <Button x:Name="ResetOverflowButton" Content="Reset over/underflow counter" Click="ResetOverflowButton_Click" />
+                                    <HyperlinkButton x:Name="OpenLogsButton" Content="Open logs folder" Padding="0" Click="OpenLogsButton_Click" />
                                     <TextBlock x:Name="StatusHelpText" Text="Status refreshes automatically while this page is open." TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                 </StackPanel>
                             </Border>

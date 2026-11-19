@@ -93,4 +93,5 @@
   <data name="OverwritePresetBody" xml:space="preserve"><value>A preset named "{0}" already exists. Overwrite it?</value></data>
   <data name="ChooseLanguageTitle" xml:space="preserve"><value>Choose your language / Escolha o idioma</value></data>
   <data name="ChooseLanguageBody" xml:space="preserve"><value>You can change it later at the top of the window.</value></data>
+  <data name="OpenLogsFolder" xml:space="preserve"><value>Open logs folder</value></data>
 </root>

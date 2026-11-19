@@ -24,7 +24,7 @@ public sealed class AppSettings
 
 public static class SettingsStore
 {
-    private static readonly string SettingsPath = Path.Combine(
+    public static string SettingsPath { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "CXADC Tools",
         "settings.json");
