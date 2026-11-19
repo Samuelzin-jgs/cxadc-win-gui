@@ -22,6 +22,8 @@ The driver step reports what actually happened: whether the driver package reach
 
 ### CXADC Control Panel
 
+![CXADC Control Panel](docs/control-panel.png)
+
 The panel provides three areas:
 
 - **CXADC card:** read and apply Video Mux (`0–3`), Level (`0–31`), Center Offset (`0–63`), 10-bit capture, and +6 dB gain; view the driver's status and reset its over/underflow counter.
@@ -29,6 +31,8 @@ The panel provides three areas:
 - **Advanced:** read and write bounded hardware registers and inspect or change EEPROM function flags. EEPROM writes can make a card unusable; use them only when you understand the effect.
 
 The panel supports English and Brazilian Portuguese. CXADC settings are shown in the driver's raw value ranges; the app does not apply an assumed signed Center Offset conversion.
+
+On first launch the panel asks for the language and stores the choice, together with your card presets, in `%LOCALAPPDATA%\CXADC Tools\settings.json`. Presets save Video Mux, Level, Center Offset, 10-bit, +6 dB and the Clockgen rates; loading a preset only fills the fields, so press **Apply** to send it to the card.
 
 ### Driver settings
 
@@ -97,6 +101,10 @@ The driver build has been tested with Visual Studio 2022 and Windows SDK/WDK 10.
 
 Based on the [Linux cxadc driver](https://github.com/happycube/cxadc-linux3). Thanks to the Domesday86 community for testing and support. The Windows driver and related upstream tools retain their respective licenses; see the included license files.
 
+### How this was built
+
+This fork is **vibecoded**: the Control Panel, the installer changes and the CI workflows were written by an AI coding agent working from the upstream project, with the maintainer reviewing and testing each change. Treat it as experimental software, read the diffs, and test on your own hardware before relying on it.
+
 ---
 
 <a id="português-brasileiro"></a>
@@ -119,6 +127,8 @@ A etapa do driver informa o que realmente aconteceu: se o pacote chegou ao repos
 
 ### CXADC Control Panel
 
+![CXADC Control Panel](docs/control-panel.png)
+
 O painel oferece três áreas:
 
 - **Placa CXADC:** consultar e aplicar Video Mux (`0–3`), Level (`0–31`), Center Offset (`0–63`), captura de 10 bits e ganho de +6 dB; visualizar o estado do driver e zerar o contador de over/underflow.
@@ -126,6 +136,8 @@ O painel oferece três áreas:
 - **Avançado:** ler e gravar registradores dentro dos limites permitidos e consultar ou alterar flags de funções na EEPROM. Uma gravação na EEPROM pode inutilizar a placa; use esse recurso somente se entender o efeito.
 
 O painel oferece português brasileiro e inglês. As configurações CXADC são exibidas nos intervalos brutos do driver; o aplicativo não presume uma conversão assinada para Center Offset.
+
+Na primeira abertura o painel pede o idioma e guarda a escolha, junto com os presets da placa, em `%LOCALAPPDATA%\CXADC Tools\settings.json`. Os presets salvam Video Mux, Level, Center Offset, 10 bits, +6 dB e as frequências do Clockgen; carregar um preset apenas preenche os campos, então clique em **Aplicar** para enviar à placa.
 
 ### Parâmetros do driver
 
@@ -194,12 +206,6 @@ A compilação do driver foi testada com Visual Studio 2022 e Windows SDK/WDK 10
 
 Baseado no [driver cxadc para Linux](https://github.com/happycube/cxadc-linux3). Agradecemos à comunidade Domesday86 pelos testes e apoio. O driver para Windows e as ferramentas relacionadas mantêm suas respectivas licenças; consulte os arquivos de licença incluídos.
 
-### Exemplos de tela
+### Como isto foi feito
 
-![Exemplo do ffplay](assets/ffplay.gif)
-
-![Exemplo do capture-server](assets/capture-server.gif)
-
-![Exemplo do cxcvbs](assets/cxcvbs.gif)
-
-![Exemplo do GNU Radio](assets/gnuradio.gif)
+Este fork é **vibecodado**: o Control Panel, as mudanças no instalador e os workflows de CI foram escritos por um agente de código de IA a partir do projeto original, com o mantenedor revisando e testando cada mudança. Trate como software experimental, leia os diffs e teste no seu próprio hardware antes de confiar nele.
