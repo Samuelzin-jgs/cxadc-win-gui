@@ -78,4 +78,19 @@
   <data name="ConfirmEepromBody" xml:space="preserve"><value>Esta ação grava diretamente na EEPROM da placa. Se algo der errado, ela pode ficar inutilizável. É necessário reiniciar. Deseja continuar?</value></data>
   <data name="FunctionUpdateSuccess" xml:space="preserve"><value>EEPROM atualizada. Reinicie o Windows para aplicar a alteração.</value></data>
   <data name="OperationFailed" xml:space="preserve"><value>Falha na operação: {0}</value></data>
+  <data name="PresetsHeader" xml:space="preserve"><value>Presets</value></data>
+  <data name="NoPresets" xml:space="preserve"><value>Nenhum preset salvo</value></data>
+  <data name="LoadPreset" xml:space="preserve"><value>Carregar preset</value></data>
+  <data name="SavePreset" xml:space="preserve"><value>Salvar como preset…</value></data>
+  <data name="DeletePreset" xml:space="preserve"><value>Excluir preset</value></data>
+  <data name="PresetNameHeader" xml:space="preserve"><value>Nome do preset</value></data>
+  <data name="Save" xml:space="preserve"><value>Salvar</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="PresetLoaded" xml:space="preserve"><value>Preset "{0}" carregado nos campos. Clique em Aplicar para enviar à placa.</value></data>
+  <data name="PresetSaved" xml:space="preserve"><value>Preset "{0}" salvo.</value></data>
+  <data name="PresetDeleted" xml:space="preserve"><value>Preset "{0}" excluído.</value></data>
+  <data name="ChoosePreset" xml:space="preserve"><value>Escolha um preset primeiro.</value></data>
+  <data name="OverwritePresetBody" xml:space="preserve"><value>Já existe um preset chamado "{0}". Sobrescrever?</value></data>
+  <data name="ChooseLanguageTitle" xml:space="preserve"><value>Choose your language / Escolha o idioma</value></data>
+  <data name="ChooseLanguageBody" xml:space="preserve"><value>Você pode mudar depois no topo da janela.</value></data>
 </root>

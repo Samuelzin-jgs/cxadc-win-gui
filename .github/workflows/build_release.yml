@@ -184,6 +184,9 @@ jobs:
             $ReleaseName += ("-" + (git rev-parse --short HEAD))
           }
 
+          # branch names may contain characters that are invalid in file names and tags
+          $ReleaseName = $ReleaseName -replace '[^A-Za-z0-9._-]', '-'
+
           $FileNameBase = ("cxadc-win-" + $ReleaseName + "-${{ inputs.build_platform }}")
           $FileNameSuffix = ""
 

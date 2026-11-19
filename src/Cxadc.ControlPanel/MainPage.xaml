@@ -43,6 +43,12 @@
                                     <NumberBox x:Name="CenterOffsetNumberBox" Header="Center Offset (0–63)" Minimum="0" Maximum="63" SpinButtonPlacementMode="Inline" Value="0" />
                                     <CheckBox x:Name="TenBitCheckBox" Content="10-bit capture" />
                                     <CheckBox x:Name="SixDbCheckBox" Content="+6 dB gain" />
+                                    <ComboBox x:Name="PresetComboBox" Header="Presets" HorizontalAlignment="Stretch" PlaceholderText="No presets saved" DisplayMemberPath="Name" />
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button x:Name="LoadPresetButton" Content="Load preset" Click="LoadPresetButton_Click" />
+                                        <Button x:Name="SavePresetButton" Content="Save as preset…" Click="SavePresetButton_Click" />
+                                        <Button x:Name="DeletePresetButton" Content="Delete preset" Click="DeletePresetButton_Click" />
+                                    </StackPanel>
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <Button x:Name="ApplyCardButton" Content="Apply" Style="{StaticResource AccentButtonStyle}" Click="ApplyCardButton_Click" />
                                         <Button x:Name="ReloadCardButton" Content="Reload from card" Click="ReloadCardButton_Click" />

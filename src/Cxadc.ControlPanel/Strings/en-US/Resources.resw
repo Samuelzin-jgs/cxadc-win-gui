@@ -78,4 +78,19 @@
   <data name="ConfirmEepromBody" xml:space="preserve"><value>This writes directly to the card EEPROM. If something goes wrong, the card may become unusable. A reboot is required. Do you want to continue?</value></data>
   <data name="FunctionUpdateSuccess" xml:space="preserve"><value>EEPROM updated. Restart Windows for the change to take effect.</value></data>
   <data name="OperationFailed" xml:space="preserve"><value>Operation failed: {0}</value></data>
+  <data name="PresetsHeader" xml:space="preserve"><value>Presets</value></data>
+  <data name="NoPresets" xml:space="preserve"><value>No presets saved</value></data>
+  <data name="LoadPreset" xml:space="preserve"><value>Load preset</value></data>
+  <data name="SavePreset" xml:space="preserve"><value>Save as preset…</value></data>
+  <data name="DeletePreset" xml:space="preserve"><value>Delete preset</value></data>
+  <data name="PresetNameHeader" xml:space="preserve"><value>Preset name</value></data>
+  <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="PresetLoaded" xml:space="preserve"><value>Preset "{0}" loaded into the fields. Press Apply to send it to the card.</value></data>
+  <data name="PresetSaved" xml:space="preserve"><value>Preset "{0}" saved.</value></data>
+  <data name="PresetDeleted" xml:space="preserve"><value>Preset "{0}" deleted.</value></data>
+  <data name="ChoosePreset" xml:space="preserve"><value>Choose a preset first.</value></data>
+  <data name="OverwritePresetBody" xml:space="preserve"><value>A preset named "{0}" already exists. Overwrite it?</value></data>
+  <data name="ChooseLanguageTitle" xml:space="preserve"><value>Choose your language / Escolha o idioma</value></data>
+  <data name="ChooseLanguageBody" xml:space="preserve"><value>You can change it later at the top of the window.</value></data>
 </root>
