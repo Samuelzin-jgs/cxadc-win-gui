@@ -105,6 +105,10 @@ Based on the [Linux cxadc driver](https://github.com/happycube/cxadc-linux3). Th
 
 This fork is **vibecoded**: the Control Panel, the installer changes and the CI workflows were written by an AI coding agent working from the upstream project, with the maintainer reviewing and testing each change. Treat it as experimental software, read the diffs, and test on your own hardware before relying on it.
 
+### Screenshots
+
+![CXADC Control Panel](docs/control-panel.png)
+
 ---
 
 <a id="português-brasileiro"></a>
@@ -209,3 +213,7 @@ Baseado no [driver cxadc para Linux](https://github.com/happycube/cxadc-linux3).
 ### Como isto foi feito
 
 Este fork é **vibecodado**: o Control Panel, as mudanças no instalador e os workflows de CI foram escritos por um agente de código de IA a partir do projeto original, com o mantenedor revisando e testando cada mudança. Trate como software experimental, leia os diffs e teste no seu próprio hardware antes de confiar nele.
+
+### Exemplos de tela
+
+![Painel de Controle CXADC](docs/control-panel.png)
