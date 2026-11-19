@@ -34,6 +34,10 @@ The panel supports English and Brazilian Portuguese. CXADC settings are shown in
 
 On first launch the panel asks for the language and stores the choice, together with your card presets, in `%LOCALAPPDATA%\CXADC Tools\settings.json`. Presets save Video Mux, Level, Center Offset, 10-bit, +6 dB and the Clockgen rates; loading a preset only fills the fields, so press **Apply** to send it to the card.
 
+### Logs
+
+The panel writes a daily log to `%USERPROFILE%\cxcc_logs\cxadc-control-panel-YYYYMMDD.log` and keeps the last 30 days. Each run records the panel version, Windows build, runtime, the device scan (cards and clockgens found, with PCI location, serial and firmware), every settings, register and EEPROM operation, language and preset changes, and any failure with its stack trace. Unhandled exceptions are logged too, so a crash leaves a trace. The **Open logs folder** link on the card tab opens the folder; attach the current file to a bug report.
+
 ### Driver settings
 
 | Setting | PowerShell / WMI property | Values | Default |
@@ -142,6 +146,10 @@ O painel oferece três áreas:
 O painel oferece português brasileiro e inglês. As configurações CXADC são exibidas nos intervalos brutos do driver; o aplicativo não presume uma conversão assinada para Center Offset.
 
 Na primeira abertura o painel pede o idioma e guarda a escolha, junto com os presets da placa, em `%LOCALAPPDATA%\CXADC Tools\settings.json`. Os presets salvam Video Mux, Level, Center Offset, 10 bits, +6 dB e as frequências do Clockgen; carregar um preset apenas preenche os campos, então clique em **Aplicar** para enviar à placa.
+
+### Logs
+
+O painel grava um log diário em `%USERPROFILE%\cxcc_logs\cxadc-control-panel-AAAAMMDD.log` e mantém os últimos 30 dias. Cada execução registra a versão do painel, a versão do Windows, o runtime, a varredura de dispositivos (placas e clockgens encontrados, com local PCI, serial e firmware), cada operação de configuração, registrador e EEPROM, mudanças de idioma e de preset, e qualquer falha com o stack trace. Exceções não tratadas também são gravadas, então um fechamento inesperado deixa rastro. O link **Abrir pasta de logs**, na aba da placa, abre a pasta; anexe o arquivo do dia ao relato de bug.
 
 ### Parâmetros do driver
 
